@@ -12,7 +12,7 @@ class ResultsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final score = ((correctAnswers / totalQuestions) * 100).toInt();
+    final score = ((correctAnswers / totalQuestions) * 100).toStringAsFixed(1);
 
     return Scaffold(
       appBar: AppBar(
@@ -29,22 +29,16 @@ class ResultsScreen extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             Text(
               'نسبة النجاح: $score%',
-              style: TextStyle(
-                fontSize: 24,
-                color: score >= 75
-                    ? Colors.green
-                    : score >= 50
-                        ? Colors.orange
-                        : Colors.red,
-              ),
+              style: const TextStyle(fontSize: 24),
             ),
-            const SizedBox(height: 20),
-            ElevatedButton(
+            const SizedBox(height: 32),
+            ElevatedButton.icon(
               onPressed: Navigator.of(context).pop,
-              child: const Text('العودة'),
+              icon: const Icon(Icons.arrow_back),
+              label: const Text('العودة'),
             ),
           ],
         ),

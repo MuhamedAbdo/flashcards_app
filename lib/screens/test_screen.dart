@@ -1,11 +1,11 @@
 import 'package:flash_card_app/models/card_type.dart';
+import 'package:flash_card_app/screens/results_screen.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flash_card_app/models/card_model.dart';
 import 'package:flash_card_app/services/deck_service.dart';
 import 'package:flash_card_app/widgets/answer_option.dart';
 import 'package:flash_card_app/widgets/card_widget.dart';
-import 'results_screen.dart';
 
 class TestScreen extends StatefulWidget {
   final String? deckId;
@@ -203,12 +203,7 @@ class TestScreenState extends State<TestScreen> {
   }
 
   void _finishTest() {
-    DeckService.createTestResult(
-      deckId: widget.deckId ?? 'all',
-      correctAnswers: _correctAnswers,
-      totalQuestions: _testCards.length,
-    );
-
+    // يمكنك هنا حفظ النتيجة باستخدام Hive أو API
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(

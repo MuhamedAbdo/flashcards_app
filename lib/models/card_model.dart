@@ -1,5 +1,6 @@
+import 'package:flash_card_app/models/card_type.dart';
 import 'package:hive/hive.dart';
-import 'card_type.dart';
+import 'package:flutter/material.dart';
 
 part 'card_model.g.dart';
 
@@ -21,7 +22,13 @@ class CardModel {
   final CardType cardType;
 
   @HiveField(5)
-  final String? deckFrontPrefix; // إضافة الحقل الجديد
+  final String? deckFrontPrefix;
+
+  @HiveField(6)
+  final TextDirection frontTextDirection;
+
+  @HiveField(7)
+  final TextDirection backTextDirection;
 
   CardModel({
     required this.id,
@@ -29,7 +36,9 @@ class CardModel {
     required this.backText,
     DateTime? createdAt,
     required this.cardType,
-    this.deckFrontPrefix, // إضافته كمعلمة اختيارية
+    this.deckFrontPrefix,
+    this.frontTextDirection = TextDirection.ltr,
+    this.backTextDirection = TextDirection.rtl,
   }) : createdAt = createdAt ?? DateTime.now();
 
   CardModel copyWith({
@@ -38,7 +47,9 @@ class CardModel {
     String? backText,
     DateTime? createdAt,
     CardType? cardType,
-    String? deckFrontPrefix, // إضافته في copyWith
+    String? deckFrontPrefix,
+    TextDirection? frontTextDirection,
+    TextDirection? backTextDirection,
   }) {
     return CardModel(
       id: id ?? this.id,
@@ -47,6 +58,8 @@ class CardModel {
       createdAt: createdAt ?? this.createdAt,
       cardType: cardType ?? this.cardType,
       deckFrontPrefix: deckFrontPrefix ?? this.deckFrontPrefix,
+      frontTextDirection: frontTextDirection ?? this.frontTextDirection,
+      backTextDirection: backTextDirection ?? this.backTextDirection,
     );
   }
 }

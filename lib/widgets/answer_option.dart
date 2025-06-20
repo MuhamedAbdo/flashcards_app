@@ -6,6 +6,7 @@ class AnswerOption extends StatelessWidget {
   final bool isCorrect;
   final bool isWrong;
   final VoidCallback onTap;
+  final TextDirection? textDirection;
 
   const AnswerOption({
     super.key,
@@ -14,6 +15,7 @@ class AnswerOption extends StatelessWidget {
     required this.isCorrect,
     required this.isWrong,
     required this.onTap,
+    this.textDirection,
   });
 
   @override
@@ -26,7 +28,7 @@ class AnswerOption extends StatelessWidget {
 
     if (isCorrect) {
       borderColor = Colors.green;
-      backgroundColor = Colors.green.withAlpha((0.1 * 255).toInt()); // ✅
+      backgroundColor = Colors.green.withOpacity(0.1);
       textColor = Colors.green.shade900;
       icon = Icons.check;
       iconColor = Colors.green;
@@ -34,7 +36,7 @@ class AnswerOption extends StatelessWidget {
 
     if (isWrong) {
       borderColor = Colors.red;
-      backgroundColor = Colors.red.withAlpha((0.1 * 255).toInt()); // ✅
+      backgroundColor = Colors.red.withOpacity(0.1);
       textColor = Colors.red.shade900;
       icon = Icons.close;
       iconColor = Colors.red;
@@ -43,8 +45,8 @@ class AnswerOption extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: EdgeInsets.symmetric(vertical: 8),
-        padding: EdgeInsets.all(16),
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(8),
@@ -53,12 +55,11 @@ class AnswerOption extends StatelessWidget {
         child: Row(
           children: [
             if (isCorrect || isWrong) Icon(icon, color: iconColor),
-            if (isCorrect || isWrong) SizedBox(width: 10),
+            if (isCorrect || isWrong) const SizedBox(width: 10),
             Expanded(
               child: Text(
                 text,
-                textDirection: TextDirection.rtl,
-                textAlign: TextAlign.center,
+                textDirection: textDirection,
                 style: TextStyle(
                   fontSize: 16,
                   color: textColor,

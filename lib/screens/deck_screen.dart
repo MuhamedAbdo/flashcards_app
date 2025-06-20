@@ -47,27 +47,28 @@ class _DeckScreenState extends State<DeckScreen> {
             body: Center(child: Text('المجموعة غير موجودة')),
           );
         }
+
         final sortedCards = List<CardModel>.from(deck.cards)
           ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+
         if (sortedCards.isEmpty) {
           return Scaffold(
             appBar: AppBar(
               title: Text(deck.title),
               actions: [
                 _buildAddButton(context),
-                // _buildEditDeckButton(context, deck),
               ],
             ),
             body: const Center(child: Text('لا توجد بطاقات في هذه المجموعة')),
           );
         }
+
         return Scaffold(
           appBar: AppBar(
             title: Text(deck.title),
             actions: [
               _buildAddButton(context),
               _buildTestButton(context),
-              // _buildEditDeckButton(context, deck),
               _buildCardMenu(context),
             ],
           ),
@@ -356,7 +357,7 @@ class _DeckScreenState extends State<DeckScreen> {
         content: const Text('هل أنت متأكد أنك تريد حذف هذه البطاقة؟'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: Navigator.of(context).pop,
             child: const Text('إلغاء'),
           ),
           TextButton(

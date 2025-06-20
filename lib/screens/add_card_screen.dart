@@ -1,66 +1,67 @@
 import 'package:flutter/material.dart';
-import 'package:flash_card_app/models/card_model.dart';
 import 'package:flash_card_app/models/card_type.dart';
+import 'package:flash_card_app/models/card_model.dart';
 import 'package:flash_card_app/services/deck_service.dart';
+import 'package:uuid/uuid.dart';
 
 class AddCardScreen extends StatefulWidget {
   final String deckId;
-  final CardModel? cardToEdit;
-  final CardType? suggestedCardType;
+  final CardType suggestedCardType;
   final String? defaultFrontPrefix;
+  final CardModel? cardToEdit;
 
   const AddCardScreen({
     super.key,
     required this.deckId,
-    this.cardToEdit,
-    this.suggestedCardType,
+    required this.suggestedCardType,
     this.defaultFrontPrefix,
+    this.cardToEdit,
   });
 
   @override
-  State<AddCardScreen> createState() => _AddCardScreenState();
+  _AddCardScreenState createState() => _AddCardScreenState();
 }
 
 class _AddCardScreenState extends State<AddCardScreen> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _frontController;
-  final TextEditingController _backController = TextEditingController();
-  late CardType? _selectedType;
+  final _frontController = TextEditingController();
+  final _backController = TextEditingController();
+  late TextDirection _frontDirection;
+  late TextDirection _backDirection;
 
   @override
   void initState() {
     super.initState();
-    final initialFrontText = widget.cardToEdit?.frontText ??
-        (widget.defaultFrontPrefix != null
-            ? '${widget.defaultFrontPrefix} '
-            : '');
-    _frontController = TextEditingController(text: initialFrontText);
-    _backController.text = widget.cardToEdit?.backText ?? '';
-    _selectedType = widget.cardToEdit?.cardType ?? widget.suggestedCardType;
-  }
 
-  @override
-  void dispose() {
-    _frontController.dispose();
-    _backController.dispose();
-    super.dispose();
+    if (widget.cardToEdit != null) {
+      _frontController.text = widget.cardToEdit!.frontText;
+      _backController.text = widget.cardToEdit!.backText;
+      _frontDirection =
+          widget.cardToEdit?.frontTextDirection ?? TextDirection.ltr;
+      _backDirection =
+          widget.cardToEdit?.backTextDirection ?? TextDirection.rtl;
+    } else {
+      _frontDirection = TextDirection.ltr;
+      _backDirection = TextDirection.rtl;
+    }
   }
 
   void _saveCard() {
     if (_formKey.currentState!.validate()) {
-      final card = CardModel(
-        id: widget.cardToEdit?.id ?? DeckService.generateId(),
+      final newCard = CardModel(
+        id: widget.cardToEdit?.id ?? const Uuid().v4(),
         frontText: _frontController.text,
         backText: _backController.text,
-        cardType: _selectedType ?? CardType.other,
-        createdAt: widget.cardToEdit?.createdAt ?? DateTime.now(),
+        cardType: widget.suggestedCardType,
         deckFrontPrefix: widget.defaultFrontPrefix,
+        frontTextDirection: _frontDirection,
+        backTextDirection: _backDirection,
       );
 
       if (widget.cardToEdit != null) {
-        DeckService.updateCardInDeck(widget.deckId, card);
+        DeckService.updateCardInDeck(widget.deckId, newCard);
       } else {
-        DeckService.addCardToDeck(widget.deckId, card);
+        DeckService.addCardToDeck(widget.deckId, newCard);
       }
 
       Navigator.pop(context, true);
@@ -71,7 +72,9 @@ class _AddCardScreenState extends State<AddCardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.cardToEdit == null ? 'إضافة بطاقة' : 'تعديل بطاقة'),
+        title: Text(
+            widget.cardToEdit != null ? 'تعديل البطاقة' : 'إضافة بطاقة جديدة'),
+        centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -79,47 +82,72 @@ class _AddCardScreenState extends State<AddCardScreen> {
           key: _formKey,
           child: Column(
             children: [
-              if (widget.defaultFrontPrefix != null)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Text(
-                    'المقدمة: ${widget.defaultFrontPrefix}',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
               TextFormField(
-                maxLines: 3,
                 controller: _frontController,
-                decoration: InputDecoration(
-                  labelText: widget.defaultFrontPrefix != null
-                      ? 'النص الرئيسي'
-                      : 'الوجه الأمامي',
-                  border: const OutlineInputBorder(),
-                ),
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'هذا الحقل مطلوب' : null,
+                decoration: const InputDecoration(labelText: 'الوجه الأمامي'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'الرجاء إدخال نص للوجه الأمامي';
+                  }
+                  return null;
+                },
               ),
-              const SizedBox(height: 16),
               TextFormField(
-                maxLines: 5,
                 controller: _backController,
-                decoration: const InputDecoration(
-                  labelText: 'الوجه الخلفي',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'هذا الحقل مطلوب' : null,
+                decoration: const InputDecoration(labelText: 'الوجه الخلفي'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'الرجاء إدخال نص للوجه الخلفي';
+                  }
+                  return null;
+                },
               ),
-              const Spacer(),
-              ElevatedButton(
-                onPressed: _saveCard,
+              const SizedBox(height: 20),
+              const Text("اتجاه الكتابة للوجه الأمامي"),
+              DropdownButton<TextDirection>(
+                isExpanded: true,
+                value: _frontDirection,
+                items: const [
+                  DropdownMenuItem(
+                      value: TextDirection.ltr,
+                      child: Text('LTR - من اليسار لليمين')),
+                  DropdownMenuItem(
+                      value: TextDirection.rtl,
+                      child: Text('RTL - من اليمين لليسار')),
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    _frontDirection = value!;
+                  });
+                },
+              ),
+              const SizedBox(height: 20),
+              const Text("اتجاه الكتابة للوجه الخلفي"),
+              DropdownButton<TextDirection>(
+                isExpanded: true,
+                value: _backDirection,
+                items: const [
+                  DropdownMenuItem(
+                      value: TextDirection.ltr,
+                      child: Text('LTR - من اليسار لليمين')),
+                  DropdownMenuItem(
+                      value: TextDirection.rtl,
+                      child: Text('RTL - من اليمين لليسار')),
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    _backDirection = value!;
+                  });
+                },
+              ),
+              const Spacer(), // لدفع الزر إلى الأسفل
+              ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
                 ),
-                child: const Text('حفظ البطاقة'),
+                onPressed: _saveCard,
+                icon: const Icon(Icons.save),
+                label: const Text('حفظ البطاقة'),
               ),
             ],
           ),
