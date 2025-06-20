@@ -78,7 +78,7 @@ class DeckService {
     }
   }
 
-  // ✅ تعديل بطاقة موجودة داخل مجموعة
+  // ✅ تعديل بطاقة داخل مجموعة
   static void updateCardInDeck(String deckId, CardModel updatedCard) {
     final deck = HiveService.decksBox.get(deckId);
     if (deck == null) return;

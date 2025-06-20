@@ -48,7 +48,6 @@ class CardWidget extends StatelessWidget {
         width: double.infinity,
         height: MediaQuery.of(context).size.height * heightFactor!,
         child: Center(
-          // ✅ جعل النص مركّز رأسيًا وأفقيًا
           child: SingleChildScrollView(
             child: Text(
               displayText,
