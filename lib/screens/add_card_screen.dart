@@ -91,6 +91,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
                   ),
                 ),
               TextFormField(
+                maxLines: 3,
                 controller: _frontController,
                 decoration: InputDecoration(
                   labelText: widget.defaultFrontPrefix != null
@@ -103,6 +104,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
               ),
               const SizedBox(height: 16),
               TextFormField(
+                maxLines: 5,
                 controller: _backController,
                 decoration: const InputDecoration(
                   labelText: 'الوجه الخلفي',
