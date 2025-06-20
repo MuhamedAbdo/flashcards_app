@@ -57,6 +57,8 @@ class AnswerOption extends StatelessWidget {
             Expanded(
               child: Text(
                 text,
+                textDirection: TextDirection.rtl,
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16,
                   color: textColor,

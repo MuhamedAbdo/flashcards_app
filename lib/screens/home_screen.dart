@@ -20,6 +20,7 @@ class HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: const Text('مجموعات البطاقات'),
         actions: [
           IconButton(

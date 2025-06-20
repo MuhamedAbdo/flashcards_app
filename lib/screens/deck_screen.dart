@@ -1,4 +1,3 @@
-import 'package:flash_card_app/screens/add_deck_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flash_card_app/models/card_model.dart';
@@ -56,7 +55,7 @@ class _DeckScreenState extends State<DeckScreen> {
               title: Text(deck.title),
               actions: [
                 _buildAddButton(context),
-                _buildEditDeckButton(context, deck),
+                // _buildEditDeckButton(context, deck),
               ],
             ),
             body: const Center(child: Text('لا توجد بطاقات في هذه المجموعة')),
@@ -68,7 +67,7 @@ class _DeckScreenState extends State<DeckScreen> {
             actions: [
               _buildAddButton(context),
               _buildTestButton(context),
-              _buildEditDeckButton(context, deck),
+              // _buildEditDeckButton(context, deck),
               _buildCardMenu(context),
             ],
           ),
@@ -182,7 +181,7 @@ class _DeckScreenState extends State<DeckScreen> {
 
   Widget _buildTestButton(BuildContext context) {
     return IconButton(
-      icon: const Icon(Icons.assignment_turned_in_rounded),
+      icon: const Icon(Icons.quiz),
       tooltip: 'اختبار خاص بهذه المجموعة',
       onPressed: () {
         Navigator.push(
@@ -192,13 +191,6 @@ class _DeckScreenState extends State<DeckScreen> {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildEditDeckButton(BuildContext context, Deck deck) {
-    return IconButton(
-      icon: const Icon(Icons.edit),
-      onPressed: () => _editDeck(context, deck),
     );
   }
 
@@ -298,18 +290,6 @@ class _DeckScreenState extends State<DeckScreen> {
           _pageController.jumpToPage(_currentIndex);
         }
       });
-    }
-  }
-
-  Future<void> _editDeck(BuildContext context, Deck deck) async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AddDeckScreen(deckToEdit: deck),
-      ),
-    );
-    if (result == true) {
-      setState(() {});
     }
   }
 
