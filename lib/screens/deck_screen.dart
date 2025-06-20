@@ -7,7 +7,6 @@ import 'package:flash_card_app/models/deck_model.dart';
 import 'package:flash_card_app/screens/add_card_screen.dart';
 import 'package:flash_card_app/screens/test_screen.dart';
 import 'package:flash_card_app/widgets/card_widget.dart';
-import 'package:flash_card_app/widgets/rotation_3d.dart';
 
 class DeckScreen extends StatefulWidget {
   final String deckId;
@@ -17,11 +16,10 @@ class DeckScreen extends StatefulWidget {
   State<DeckScreen> createState() => _DeckScreenState();
 }
 
-class _DeckScreenState extends State<DeckScreen> with TickerProviderStateMixin {
+class _DeckScreenState extends State<DeckScreen> {
   int _currentIndex = 0;
   bool _isFront = true;
   late final Box<Deck> _decksBox;
-  late AnimationController _flipController;
   double _dragOffset = 0;
   final PageController _pageController = PageController();
   bool _isDragging = false;
@@ -31,15 +29,10 @@ class _DeckScreenState extends State<DeckScreen> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     _decksBox = Hive.box<Deck>('decks');
-    _flipController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 500),
-    );
   }
 
   @override
   void dispose() {
-    _flipController.dispose();
     _pageController.dispose();
     super.dispose();
   }
@@ -55,10 +48,8 @@ class _DeckScreenState extends State<DeckScreen> with TickerProviderStateMixin {
             body: Center(child: Text('المجموعة غير موجودة')),
           );
         }
-
         final sortedCards = List<CardModel>.from(deck.cards)
           ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
-
         if (sortedCards.isEmpty) {
           return Scaffold(
             appBar: AppBar(
@@ -117,20 +108,44 @@ class _DeckScreenState extends State<DeckScreen> with TickerProviderStateMixin {
                             margin: cardMargin,
                             child: GestureDetector(
                               onTap: () {
-                                if (!_isDragging) _flipCard();
+                                if (!_isDragging) {
+                                  setState(() {
+                                    _isFront = !_isFront;
+                                  });
+                                }
                               },
-                              child: Rotation3D(
-                                animation: _flipController,
-                                isFront: _isFront,
-                                child: CardWidget(
-                                  key: ValueKey(
-                                      '${currentCard.id}_${_isFront ? 'front' : 'back'}'),
-                                  card: currentCard.copyWith(
-                                      deckFrontPrefix: deck.frontPrefix),
-                                  isFront: _isFront,
-                                  cardType: displayType,
-                                  margin: EdgeInsets.zero,
-                                  heightFactor: 0.75,
+                              child: AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 400),
+                                transitionBuilder: (child, animation) {
+                                  final offsetAnimation = Tween<Offset>(
+                                    begin: _isFront
+                                        ? const Offset(0, 1)
+                                        : const Offset(0, -1),
+                                    end: Offset.zero,
+                                  ).animate(animation);
+
+                                  return ClipRect(
+                                    child: SlideTransition(
+                                      position: offsetAnimation,
+                                      child: child,
+                                    ),
+                                  );
+                                },
+                                layoutBuilder:
+                                    (currentChild, previousChildren) =>
+                                        currentChild!,
+                                child: KeyedSubtree(
+                                  key: ValueKey('${currentCard.id}_$_isFront'),
+                                  child: CardWidget(
+                                    key:
+                                        ValueKey('${currentCard.id}_$_isFront'),
+                                    card: currentCard.copyWith(
+                                        deckFrontPrefix: deck.frontPrefix),
+                                    isFront: _isFront,
+                                    cardType: displayType,
+                                    margin: EdgeInsets.zero,
+                                    heightFactor: 0.75,
+                                  ),
                                 ),
                               ),
                             ),
@@ -226,7 +241,6 @@ class _DeckScreenState extends State<DeckScreen> with TickerProviderStateMixin {
     if (deck == null) return;
     final sortedCards = List<CardModel>.from(deck.cards)
       ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
-
     if (_dragOffset > 100 && _currentIndex > 0) {
       setState(() {
         _currentIndex--;
@@ -257,16 +271,6 @@ class _DeckScreenState extends State<DeckScreen> with TickerProviderStateMixin {
         _dragOffset = 0;
       });
     }
-  }
-
-  Future<void> _flipCard() async {
-    if (_flipController.isAnimating) return;
-    if (_isFront) {
-      await _flipController.forward();
-    } else {
-      await _flipController.reverse();
-    }
-    setState(() => _isFront = !_isFront);
   }
 
   Future<void> _addNewCard(BuildContext context) async {

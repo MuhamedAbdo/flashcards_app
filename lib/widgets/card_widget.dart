@@ -47,7 +47,8 @@ class CardWidget extends StatelessWidget {
         ),
         width: double.infinity,
         height: MediaQuery.of(context).size.height * heightFactor!,
-        child: SingleChildScrollView(
+        child: Center(
+          // ✅ هنا تم إضافة Center لتجميع النص في المنتصف رأسيًا وأفقيًا
           child: Text(
             displayText,
             style: TextStyle(
@@ -56,7 +57,7 @@ class CardWidget extends StatelessWidget {
               color: Colors.white,
             ),
             textAlign: TextAlign.center,
-            textDirection: TextDirection.rtl,
+            textDirection: isFront ? TextDirection.ltr : TextDirection.rtl,
           ),
         ),
       ),
