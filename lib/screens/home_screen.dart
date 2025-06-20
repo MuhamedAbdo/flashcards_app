@@ -1,7 +1,7 @@
 import 'package:flash_card_app/models/deck_model.dart';
-import 'package:flash_card_app/screens/deck_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flash_card_app/screens/add_deck_screen.dart';
+import 'package:flash_card_app/screens/deck_screen.dart';
 import 'package:flash_card_app/screens/test_screen.dart';
 import 'package:flash_card_app/services/hive_service.dart';
 import 'package:flash_card_app/widgets/deck_widget.dart';
@@ -9,10 +9,10 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key}); // ✅ إضافة super.key
+  const HomeScreen({super.key});
 
   @override
-  HomeScreenState createState() => HomeScreenState(); // ✅ كلاس عام
+  HomeScreenState createState() => HomeScreenState();
 }
 
 class HomeScreenState extends State<HomeScreen> {
@@ -67,6 +67,14 @@ class HomeScreenState extends State<HomeScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => DeckScreen(deckId: deck.id),
+                    ),
+                  );
+                },
+                onEdit: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AddDeckScreen(deckToEdit: deck),
                     ),
                   );
                 },

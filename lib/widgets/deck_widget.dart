@@ -5,12 +5,14 @@ import 'package:flash_card_app/models/deck_model.dart';
 class DeckWidget extends StatelessWidget {
   final Deck deck;
   final VoidCallback onTap;
+  final VoidCallback onEdit;
   final VoidCallback onDelete;
 
   const DeckWidget({
     super.key,
     required this.deck,
     required this.onTap,
+    required this.onEdit,
     required this.onDelete,
   });
 
@@ -19,7 +21,7 @@ class DeckWidget extends StatelessWidget {
     final dateFormat = DateFormat('yyyy/MM/dd', 'ar');
 
     return Card(
-      margin: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
@@ -43,6 +45,11 @@ class DeckWidget extends StatelessWidget {
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.edit, color: Colors.blue),
+                    onPressed: onEdit,
+                    tooltip: 'تعديل المجموعة',
                   ),
                   IconButton(
                     icon: const Icon(Icons.delete, color: Colors.red),

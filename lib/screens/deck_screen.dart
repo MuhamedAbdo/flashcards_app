@@ -69,7 +69,7 @@ class _DeckScreenState extends State<DeckScreen> {
             actions: [
               _buildAddButton(context),
               _buildTestButton(context),
-              _buildEditDeckButton(context, deck),
+              // _buildEditDeckButton(context, deck),
               _buildCardMenu(context),
             ],
           ),

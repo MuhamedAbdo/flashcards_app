@@ -105,11 +105,15 @@ class TestScreenState extends State<TestScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            CardWidget(
-              card: currentCard,
-              isFront: true,
-              cardType: cardType,
-              isTestMode: _isTestMode,
+            SizedBox(
+              height: MediaQuery.of(context).size.height *
+                  0.3, // 50% من ارتفاع الشاشة
+              child: CardWidget(
+                card: currentCard,
+                isFront: true,
+                cardType: cardType,
+                isTestMode: _isTestMode,
+              ),
             ),
             const SizedBox(height: 20),
             if (_isTestMode) ...[

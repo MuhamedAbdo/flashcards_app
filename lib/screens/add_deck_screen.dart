@@ -79,60 +79,39 @@ class AddDeckScreenState extends State<AddDeckScreen> {
                     ),
                   );
                 }).toList(),
-                onChanged: _isEditing
-                    ? null
-                    : (value) {
-                        if (value != null) {
-                          setState(() {
-                            _selectedType = value;
-                          });
-                        }
-                      },
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() {
+                      _selectedType = value;
+                    });
+                  }
+                },
               ),
               const SizedBox(height: 20),
-              if (_isOtherSelected || _isEditing)
-                TextFormField(
-                  controller: _titleController,
-                  decoration: const InputDecoration(
-                    labelText: 'عنوان المجموعة',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if ((_isOtherSelected || _isEditing) &&
-                        (value == null || value.isEmpty)) {
-                      return 'الرجاء إدخال عنوان للمجموعة';
-                    }
-                    return null;
-                  },
-                  readOnly: !_isOtherSelected && _isEditing,
-                )
-              else
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'عنوان المجموعة: ${_selectedType.displayName}',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+              if (_selectedType == CardType.other)
+                Column(
+                  children: [
+                    const SizedBox(height: 20),
+                    TextFormField(
+                      controller: _titleController,
+                      decoration: const InputDecoration(
+                        labelText: 'عنوان المجموعة',
+                        border: OutlineInputBorder(),
                       ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'الرجاء إدخال عنوان للمجموعة';
+                        }
+                        return null;
+                      },
                     ),
-                  ),
+                  ],
                 ),
               const SizedBox(height: 20),
-              // TextFormField(
-              //   controller: _prefixController,
-              //   decoration: const InputDecoration(
-              //     labelText: 'مقدمة الوجه الأمامي (اختياري)',
-              //     border: OutlineInputBorder(),
-              //     hintText: 'مثال: ps C:\\user>',
-              //   ),
-              // ),
               const Spacer(),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50),
+                  minimumSize: Size(double.infinity, 50),
                 ),
                 onPressed: _saveDeck,
                 child: Text(_isEditing ? 'حفظ التعديلات' : 'إنشاء المجموعة'),
@@ -148,7 +127,7 @@ class AddDeckScreenState extends State<AddDeckScreen> {
     if (_formKey.currentState!.validate()) {
       final deck = Deck(
         id: _isEditing ? widget.deckToEdit!.id : DeckService.generateId(),
-        title: _isOtherSelected || _isEditing
+        title: _selectedType == CardType.other
             ? _titleController.text
             : _selectedType.displayName,
         cardType: _selectedType,
