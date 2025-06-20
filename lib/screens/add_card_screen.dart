@@ -83,6 +83,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
           child: Column(
             children: [
               TextFormField(
+                maxLines: 3,
                 controller: _frontController,
                 decoration: const InputDecoration(labelText: 'الوجه الأمامي'),
                 validator: (value) {
@@ -93,6 +94,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
                 },
               ),
               TextFormField(
+                maxLines: 5,
                 controller: _backController,
                 decoration: const InputDecoration(labelText: 'الوجه الخلفي'),
                 validator: (value) {
