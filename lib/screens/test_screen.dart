@@ -1,8 +1,7 @@
-import 'package:flash_card_app/services/hive_service.dart';
-import 'package:flutter/material.dart';
 import 'package:flash_card_app/models/card_type.dart';
+import 'package:flutter/material.dart';
+
 import 'package:flash_card_app/models/card_model.dart';
-import 'package:flash_card_app/models/test_result_model.dart';
 import 'package:flash_card_app/services/deck_service.dart';
 import 'package:flash_card_app/widgets/answer_option.dart';
 import 'package:flash_card_app/widgets/card_widget.dart';
@@ -106,8 +105,7 @@ class TestScreenState extends State<TestScreen> {
         child: Column(
           children: [
             SizedBox(
-              height: MediaQuery.of(context).size.height *
-                  0.3, // 50% من ارتفاع الشاشة
+              height: MediaQuery.of(context).size.height * 0.3,
               child: CardWidget(
                 card: currentCard,
                 isFront: true,
@@ -116,7 +114,7 @@ class TestScreenState extends State<TestScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            if (_isTestMode) ...[
+            if (_isTestMode)
               const Align(
                 alignment: Alignment.centerRight,
                 child: Text(
@@ -124,8 +122,7 @@ class TestScreenState extends State<TestScreen> {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),
-              const SizedBox(height: 10),
-            ],
+            const SizedBox(height: 10),
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
@@ -142,9 +139,11 @@ class TestScreenState extends State<TestScreen> {
                         ),
                         ElevatedButton(
                           onPressed: _nextQuestion,
-                          child: Text(_currentIndex < _testCards.length - 1
-                              ? 'التالي'
-                              : 'إنهاء الاختبار'),
+                          child: Text(
+                            _currentIndex < _testCards.length - 1
+                                ? 'التالي'
+                                : 'إنهاء الاختبار',
+                          ),
                         ),
                       ],
                     ),
@@ -204,14 +203,11 @@ class TestScreenState extends State<TestScreen> {
   }
 
   void _finishTest() {
-    final result = TestResult(
-      id: DeckService.generateId(),
+    DeckService.createTestResult(
       deckId: widget.deckId ?? 'all',
       correctAnswers: _correctAnswers,
       totalQuestions: _testCards.length,
     );
-
-    HiveService.testResultsBox.put(result.id, result);
 
     Navigator.pushReplacement(
       context,

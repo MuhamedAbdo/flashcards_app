@@ -19,8 +19,6 @@ class AddDeckScreenState extends State<AddDeckScreen> {
   CardType _selectedType = CardType.other;
   bool _isEditing = false;
 
-  bool get _isOtherSelected => _selectedType == CardType.other;
-
   @override
   void initState() {
     super.initState();

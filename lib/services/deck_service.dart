@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flash_card_app/models/card_model.dart';
 import 'package:flash_card_app/models/deck_model.dart';
+import 'package:flash_card_app/models/test_result_model.dart'; // ✅ إضافة الـ import
 import 'package:flash_card_app/services/hive_service.dart';
 
 class DeckService {
@@ -81,5 +82,23 @@ class DeckService {
 
   static String generateId() {
     return _uuid.v4();
+  }
+
+  // ✅ إضافة جديدة: createTestResult
+  static TestResult createTestResult({
+    required String deckId,
+    required int correctAnswers,
+    required int totalQuestions,
+  }) {
+    final testResult = TestResult(
+      id: generateId(),
+      deckId: deckId,
+      correctAnswers: correctAnswers,
+      totalQuestions: totalQuestions,
+    );
+
+    HiveService.testResultsBox.add(testResult);
+
+    return testResult;
   }
 }

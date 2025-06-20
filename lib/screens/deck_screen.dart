@@ -62,14 +62,13 @@ class _DeckScreenState extends State<DeckScreen> {
             body: const Center(child: Text('لا توجد بطاقات في هذه المجموعة')),
           );
         }
-
         return Scaffold(
           appBar: AppBar(
             title: Text(deck.title),
             actions: [
               _buildAddButton(context),
               _buildTestButton(context),
-              // _buildEditDeckButton(context, deck),
+              _buildEditDeckButton(context, deck),
               _buildCardMenu(context),
             ],
           ),
@@ -183,7 +182,8 @@ class _DeckScreenState extends State<DeckScreen> {
 
   Widget _buildTestButton(BuildContext context) {
     return IconButton(
-      icon: const Icon(Icons.quiz),
+      icon: const Icon(Icons.assignment_turned_in_rounded),
+      tooltip: 'اختبار خاص بهذه المجموعة',
       onPressed: () {
         Navigator.push(
           context,
