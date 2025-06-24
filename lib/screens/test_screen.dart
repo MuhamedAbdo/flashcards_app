@@ -36,13 +36,23 @@ class TestScreenState extends State<TestScreen> {
   void _initializeTest() {
     final deck =
         widget.deckId != null ? DeckService.getDeck(widget.deckId!) : null;
-    _allCards = deck?.cards ??
-        DeckService.getAllDecks().expand((deck) => deck.cards).toList();
-    _allCards.shuffle();
 
+    if (widget.deckId != null) {
+      // اختبار محدد لمجموعة معينة
+      _allCards = deck?.cards ?? [];
+    } else {
+      // اختبار عام - نستخدم كل البطاقات
+      _allCards =
+          DeckService.getAllDecks().expand((deck) => deck.cards).toList();
+    }
+
+    _allCards.shuffle();
     int count = _calculateTestCount(_allCards.length);
     _testCards = _allCards.take(count).toList();
-    _generateOptions();
+
+    if (_testCards.isNotEmpty) {
+      _generateOptions();
+    }
   }
 
   int _calculateTestCount(int totalAvailable) {
@@ -55,24 +65,35 @@ class TestScreenState extends State<TestScreen> {
     if (_testCards.isEmpty) return;
 
     final currentCard = _testCards[_currentIndex];
-    final currentDeck = widget.deckId != null
-        ? DeckService.getDeck(widget.deckId!)
-        : _getDeckForCard(currentCard);
+    final currentDeck = _getDeckForCard(currentCard);
 
-    final cardsFromSameDeck = currentDeck?.cards ??
-        _allCards
-            .where((c) => _getDeckForCard(c)?.id == currentDeck?.id)
-            .toList();
+    // الحصول على البطاقات من نفس المجموعة فقط
+    final cardsFromSameDeck = currentDeck?.cards ?? [];
 
     final correctAnswer = currentCard.backText;
-    final otherCards = cardsFromSameDeck
-        .where((c) => c.id != currentCard.id && c.backText != correctAnswer)
-        .map((c) => c.backText)
-        .toSet()
-        .toList();
+    List<String> wrongAnswers = [];
 
-    otherCards.shuffle();
-    final wrongAnswers = otherCards.take(3).toList();
+    if (cardsFromSameDeck.isNotEmpty) {
+      // إذا كانت هناك بطاقات كافية في نفس المجموعة
+      final otherCards = cardsFromSameDeck
+          .where((c) => c.id != currentCard.id && c.backText != correctAnswer)
+          .map((c) => c.backText)
+          .toSet()
+          .toList();
+
+      otherCards.shuffle();
+      wrongAnswers = otherCards.take(3).toList();
+    } else {
+      // إذا لم تكن هناك بطاقات كافية، نستخدم خيارات عامة
+      final otherCards = _allCards
+          .where((c) => c.id != currentCard.id && c.backText != correctAnswer)
+          .map((c) => c.backText)
+          .toSet()
+          .toList();
+
+      otherCards.shuffle();
+      wrongAnswers = otherCards.take(3).toList();
+    }
 
     setState(() {
       _options = [...wrongAnswers, correctAnswer]..shuffle();

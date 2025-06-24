@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:flash_card_app/models/card_model.dart';
 import 'package:flash_card_app/models/card_type.dart';
 import 'package:flash_card_app/models/deck_model.dart';
 import 'package:flash_card_app/screens/add_card_screen.dart';
@@ -48,7 +47,8 @@ class _DeckScreenState extends State<DeckScreen> {
           );
         }
 
-        final sortedCards = List<CardModel>.from(deck.cards)
+        // إنشاء نسخة عميقة من البطاقات
+        final sortedCards = deck.cards.map((card) => card.copyWith()).toList()
           ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
 
         if (sortedCards.isEmpty) {
@@ -232,8 +232,10 @@ class _DeckScreenState extends State<DeckScreen> {
   void _handleHorizontalDragEnd(DragEndDetails details) {
     final deck = _getCurrentDeck();
     if (deck == null) return;
-    final sortedCards = List<CardModel>.from(deck.cards)
+
+    final sortedCards = deck.cards.map((card) => card.copyWith()).toList()
       ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+
     if (_dragOffset > 100 && _currentIndex > 0) {
       setState(() {
         _currentIndex--;
@@ -308,19 +310,22 @@ class _DeckScreenState extends State<DeckScreen> {
   Future<void> _editCurrentCard(BuildContext context) async {
     final deck = _getCurrentDeck();
     if (deck == null) return;
-    final sortedCards = List<CardModel>.from(deck.cards)
+
+    final sortedCards = deck.cards.map((card) => card.copyWith()).toList()
       ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => AddCardScreen(
           deckId: widget.deckId,
-          cardToEdit: sortedCards[_currentIndex],
+          cardToEdit: sortedCards[_currentIndex].copyWith(),
           suggestedCardType: sortedCards[_currentIndex].cardType,
           defaultFrontPrefix: deck.frontPrefix,
         ),
       ),
     );
+
     if (result == true) {
       setState(() => _isFront = true);
     }
@@ -329,12 +334,13 @@ class _DeckScreenState extends State<DeckScreen> {
   Future<void> _deleteCurrentCard() async {
     final deck = _getCurrentDeck();
     if (deck == null) return;
-    final sortedCards = List<CardModel>.from(deck.cards)
-      ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
-    final updatedCards = List<CardModel>.from(sortedCards)
+
+    final updatedCards = deck.cards.map((card) => card.copyWith()).toList()
       ..removeAt(_currentIndex);
+
     final updatedDeck = deck.copyWith(cards: updatedCards);
     await _decksBox.put(widget.deckId, updatedDeck);
+
     if (!mounted) return;
     setState(() {
       if (_currentIndex >= updatedCards.length && _currentIndex > 0) {
