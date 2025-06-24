@@ -1,9 +1,10 @@
-import 'package:flash_card_app/models/card_type.dart';
-import 'package:flash_card_app/screens/results_screen.dart';
 import 'package:flutter/material.dart';
-
 import 'package:flash_card_app/models/card_model.dart';
+import 'package:flash_card_app/models/card_type.dart';
+import 'package:flash_card_app/models/deck_model.dart';
 import 'package:flash_card_app/services/deck_service.dart';
+import 'package:flash_card_app/utils/extensions.dart';
+import 'package:flash_card_app/screens/results_screen.dart';
 import 'package:flash_card_app/widgets/answer_option.dart';
 import 'package:flash_card_app/widgets/card_widget.dart';
 
@@ -20,11 +21,11 @@ class TestScreenState extends State<TestScreen> {
   late List<CardModel> _testCards;
   late List<CardModel> _allCards;
   int _currentIndex = 0;
-
   final bool _isTestMode = true;
   String? _selectedAnswer;
   int _correctAnswers = 0;
   List<String> _options = [];
+  TextDirection _currentTextDirection = TextDirection.rtl;
 
   @override
   void initState() {
@@ -35,49 +36,54 @@ class TestScreenState extends State<TestScreen> {
   void _initializeTest() {
     final deck =
         widget.deckId != null ? DeckService.getDeck(widget.deckId!) : null;
-
-    _allCards = deck?.cards ?? [];
-
-    if (widget.deckId == null) {
-      _allCards =
-          DeckService.getAllDecks().expand((deck) => deck.cards).toList();
-    }
-
+    _allCards = deck?.cards ??
+        DeckService.getAllDecks().expand((deck) => deck.cards).toList();
     _allCards.shuffle();
 
-    int totalAvailable = _allCards.length;
-    int count = 0;
-    if (totalAvailable >= 20) {
-      count = 20;
-    } else if (totalAvailable >= 5) {
-      count = (totalAvailable ~/ 5) * 5;
-    } else {
-      count = totalAvailable;
-    }
-
+    int count = _calculateTestCount(_allCards.length);
     _testCards = _allCards.take(count).toList();
-
     _generateOptions();
+  }
+
+  int _calculateTestCount(int totalAvailable) {
+    if (totalAvailable >= 20) return 20;
+    if (totalAvailable >= 5) return (totalAvailable ~/ 5) * 5;
+    return totalAvailable;
   }
 
   void _generateOptions() {
     if (_testCards.isEmpty) return;
 
     final currentCard = _testCards[_currentIndex];
-    final correctAnswer = currentCard.backText;
+    final currentDeck = widget.deckId != null
+        ? DeckService.getDeck(widget.deckId!)
+        : _getDeckForCard(currentCard);
 
-    final otherBackTexts = _allCards
-        .where((c) => c.id != currentCard.id)
+    final cardsFromSameDeck = currentDeck?.cards ??
+        _allCards
+            .where((c) => _getDeckForCard(c)?.id == currentDeck?.id)
+            .toList();
+
+    final correctAnswer = currentCard.backText;
+    final otherCards = cardsFromSameDeck
+        .where((c) => c.id != currentCard.id && c.backText != correctAnswer)
         .map((c) => c.backText)
         .toSet()
         .toList();
 
-    otherBackTexts.shuffle();
-    final wrongAnswers = otherBackTexts.take(3).toList();
+    otherCards.shuffle();
+    final wrongAnswers = otherCards.take(3).toList();
 
-    _options = [...wrongAnswers, correctAnswer];
-    _options.shuffle();
-    _selectedAnswer = null;
+    setState(() {
+      _options = [...wrongAnswers, correctAnswer]..shuffle();
+      _selectedAnswer = null;
+      _currentTextDirection = currentCard.backTextDirection;
+    });
+  }
+
+  Deck? _getDeckForCard(CardModel card) {
+    return DeckService.getAllDecks()
+        .firstWhereOrNull((deck) => deck.cards.any((c) => c.id == card.id));
   }
 
   @override
@@ -169,6 +175,7 @@ class TestScreenState extends State<TestScreen> {
         isCorrect: isCorrect && _selectedAnswer != null,
         isWrong: isWrongSelected,
         onTap: () => _selectAnswer(option),
+        textDirection: _currentTextDirection,
       );
     }).toList();
   }
@@ -203,7 +210,14 @@ class TestScreenState extends State<TestScreen> {
   }
 
   void _finishTest() {
-    // يمكنك هنا حفظ النتيجة باستخدام Hive أو API
+    if (widget.deckId != null) {
+      DeckService.createTestResult(
+        deckId: widget.deckId!,
+        correctAnswers: _correctAnswers,
+        totalQuestions: _testCards.length,
+      );
+    }
+
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(

@@ -6,7 +6,7 @@ class AnswerOption extends StatelessWidget {
   final bool isCorrect;
   final bool isWrong;
   final VoidCallback onTap;
-  final TextDirection? textDirection;
+  final TextDirection textDirection;
 
   const AnswerOption({
     super.key,
@@ -15,7 +15,7 @@ class AnswerOption extends StatelessWidget {
     required this.isCorrect,
     required this.isWrong,
     required this.onTap,
-    this.textDirection,
+    required this.textDirection,
   });
 
   @override
